@@ -1,4 +1,4 @@
-package com.bksoft.kafka_producer.models;
+package com.bksoft.kafka_consumer.model;
 
 import java.math.BigDecimal;
 
