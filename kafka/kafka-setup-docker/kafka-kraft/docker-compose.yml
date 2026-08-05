@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  kafka:
+    image: apache/kafka:4.3.1
+    container_name: kafka
+
+    ports:
+      - "9092:9092"
+
+    environment:
+      # KRaft Settings
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      # Cluster ID (generate once using kafka-storage.sh random-uuid)
+      KAFKA_CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+      # Controller quorum
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      # Listeners
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      # Internal Topics
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # Log directory
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+    command:
+      - sh
+      - -c
+      - |
+        if [ ! -f /var/lib/kafka/data/meta.properties ]; then
+          /opt/kafka/bin/kafka-storage.sh format \
+            --ignore-formatted \
+            --cluster-id $$KAFKA_CLUSTER_ID \
+            --config /opt/kafka/config/server.properties
+        fi
+
+        exec /opt/kafka/bin/kafka-server-start.sh \
+          /opt/kafka/config/server.properties \
+          --override process.roles=broker,controller \
+          --override node.id=1 \
+          --override controller.quorum.voters=1@kafka:29093 \
+          --override controller.listener.names=CONTROLLER \
+          --override listeners=PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093 \
+          --override advertised.listeners=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092 \
+          --override listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT \
+          --override inter.broker.listener.name=PLAINTEXT \
+          --override log.dirs=/var/lib/kafka/data
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+    networks:
+      - broker-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+
+    depends_on:
+      - kafka
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+
+    networks:
+      - broker-network
+
+volumes:
+  kafka-data:
+
+networks:
+  broker-network:
+    driver: bridge
