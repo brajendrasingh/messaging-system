@@ -8,21 +8,15 @@ public class Order {
     private String customerId;
     private BigDecimal amount;
     private String status;
-    private LocalDateTime createdAt;
 
     public Order() {
     }
 
-    public Order(String orderId,
-                 String customerId,
-                 BigDecimal amount,
-                 String status,
-                 LocalDateTime createdAt) {
+    public Order(String orderId, String customerId, BigDecimal amount, String status) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.amount = amount;
         this.status = status;
-        this.createdAt = createdAt;
     }
 
     public String getOrderId() {
@@ -31,14 +25,6 @@ public class Order {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getStatus() {

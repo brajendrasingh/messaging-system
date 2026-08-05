@@ -23,7 +23,7 @@ public class OrderController {
     @PostMapping
     public String createOrder(@RequestBody OrderRequest request) {
         String orderId = UUID.randomUUID().toString();
-        Order event = new Order(orderId, request.getCustomerId(), request.getAmount(), "CREATED", LocalDateTime.now());
+        Order event = new Order(orderId, request.getCustomerId(), request.getAmount(), "CREATED");
         producer.publish(event);
         return "Order Created: " + orderId;
     }
