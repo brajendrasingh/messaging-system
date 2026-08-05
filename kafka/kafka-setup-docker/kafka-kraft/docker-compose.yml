@@ -61,6 +61,7 @@ services:
           --override log.dirs=/var/lib/kafka/data
 
     volumes:
+      - ./config/server.properties:/opt/kafka/config/server.properties    
       - kafka-data:/var/lib/kafka/data
 
     networks:
