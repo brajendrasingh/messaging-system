@@ -23,7 +23,7 @@ public class OrderService {
         orderEntity.setProduct(event.getProduct());
         orderEntity.setQuantity(event.getQuantity());
         orderEntity.setAmount(event.getAmount());
-        orderEntity.setStatus("Completed");
+        orderEntity.setStatus(event.getStatus());
         orderEntity.setCustomerId(event.getCustomerId());
         orderEntity.setOrderDate(event.getOrderDate());
         orderRepository.save(orderEntity);

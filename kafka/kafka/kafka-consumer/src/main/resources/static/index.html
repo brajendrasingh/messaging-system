@@ -17,7 +17,7 @@
         }
 
         .container {
-            width: 90%;
+            width: 100%;
             margin: auto;
             background: white;
             padding: 25px;
@@ -157,42 +157,34 @@
                             </span>
                         </td>
                         <td>${order.orderDate ?? ''}</td>
+                        <td>
                         <select class="status-select" id="status-${order.orderId}">
-                            <option value="NEW"
-                                ${order.status === 'NEW' ? 'selected' : ''}>
+                            <option value="NEW" ${order.status === 'NEW' ? 'selected' : ''}>
                                 NEW
                             </option>
 
-                            <option value="PROCESSING"
-                                ${order.status === 'PROCESSING' ? 'selected' : ''}>
+                            <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>
                                 PROCESSING
                             </option>
 
-                            <option value="PACKED"
-                                ${order.status === 'PACKED' ? 'selected' : ''}>
+                            <option value="PACKED" ${order.status === 'PACKED' ? 'selected' : ''}>
                                 PACKED
                             </option>
 
-                            <option value="SHIPPED"
-                                ${order.status === 'SHIPPED' ? 'selected' : ''}>
+                            <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>
                                 SHIPPED
                             </option>
 
-                            <option value="DELIVERED"
-                                ${order.status === 'DELIVERED' ? 'selected' : ''}>
+                            <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>
                                 DELIVERED
                             </option>
 
-                            <option value="CANCELLED"
-                                ${order.status === 'CANCELLED' ? 'selected' : ''}>
+                            <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>
                                 CANCELLED
                             </option>
                         </select>
 
-                        <button class="update-btn"
-                        onclick="updateStatus('${order.orderId}')">
-                            Update
-                        </button>
+                        <button class="update-btn" onclick="updateStatus('${order.orderId}')"> Update </button>
                         </td>
                     </tr>
                 `;
