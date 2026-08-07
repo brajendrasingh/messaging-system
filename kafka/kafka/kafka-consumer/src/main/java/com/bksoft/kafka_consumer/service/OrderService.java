@@ -34,7 +34,7 @@ public class OrderService {
     }
 
     public void updateStatus(String orderId, String status) {
-        OrderEntity order = orderRepository.findByorderId(orderId).orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+        OrderEntity order = orderRepository.findByOrderId(orderId).orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
         order.setStatus(status);
         orderRepository.save(order);
     }
