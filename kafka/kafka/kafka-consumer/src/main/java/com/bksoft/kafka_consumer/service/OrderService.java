@@ -33,6 +33,12 @@ public class OrderService {
         System.out.println("Processing order: " + event.getOrderId());
     }
 
+    public void updateStatus(String orderId, String status) {
+        OrderEntity order = orderRepository.findByorderId(orderId).orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
     public List<Order> getAllOrders() {
         List<Order> response = new ArrayList<>();
         for (OrderEntity order : orderRepository.findAll()) {

@@ -88,6 +88,28 @@
             color: red;
             font-weight: bold;
         }
+
+        .status-select {
+            padding: 6px;
+            border-radius: 5px;
+            border: 1px solid #bbb;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .update-btn {
+            margin-left: 8px;
+            padding: 6px 10px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .update-btn:hover {
+            background: #1565c0;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +125,7 @@
             <th>Amount</th>
             <th>Status</th>
             <th>Order Date</th>
+            <th>Action</th>
         </tr>
         </thead>
         <tbody id="orderTable">
@@ -134,6 +157,43 @@
                             </span>
                         </td>
                         <td>${order.orderDate ?? ''}</td>
+                        <select class="status-select" id="status-${order.orderId}">
+                            <option value="NEW"
+                                ${order.status === 'NEW' ? 'selected' : ''}>
+                                NEW
+                            </option>
+
+                            <option value="PROCESSING"
+                                ${order.status === 'PROCESSING' ? 'selected' : ''}>
+                                PROCESSING
+                            </option>
+
+                            <option value="PACKED"
+                                ${order.status === 'PACKED' ? 'selected' : ''}>
+                                PACKED
+                            </option>
+
+                            <option value="SHIPPED"
+                                ${order.status === 'SHIPPED' ? 'selected' : ''}>
+                                SHIPPED
+                            </option>
+
+                            <option value="DELIVERED"
+                                ${order.status === 'DELIVERED' ? 'selected' : ''}>
+                                DELIVERED
+                            </option>
+
+                            <option value="CANCELLED"
+                                ${order.status === 'CANCELLED' ? 'selected' : ''}>
+                                CANCELLED
+                            </option>
+                        </select>
+
+                        <button class="update-btn"
+                        onclick="updateStatus(${order.orderId})">
+                            Update
+                        </button>
+                        </td>
                     </tr>
                 `;
                 table.innerHTML += row;
@@ -144,6 +204,30 @@
     }
     // Load orders when page opens
     loadOrders();
+    async function updateStatus(orderId) {
+    const status = document.getElementById("status-" + orderId).value;
+    try {
+        const response = await fetch(`/api/${orderId}/status`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    status: status
+                })
+            }
+        );
+        if(response.ok) {
+            alert("Order status updated");
+            loadOrders();
+        } else {
+            alert("Failed to update status");
+        }
+    } catch(error) {
+        alert("Server error");
+    }
+}
 </script>
 </body>
 </html>
