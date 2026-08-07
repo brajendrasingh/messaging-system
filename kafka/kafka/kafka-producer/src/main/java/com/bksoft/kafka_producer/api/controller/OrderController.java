@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api")
 public class OrderController {
     private final OrderProducer producer;
 
@@ -21,9 +21,9 @@ public class OrderController {
         this.producer = producer;
     }
 
-    @PostMapping
+    @PostMapping("/orders")
     public String createOrder(@RequestBody OrderRequest request) {
-        String orderId = UUID.randomUUID().toString();
+        String orderId = UUID.randomUUID().toString().replace("-", "");
         Order event = new Order(orderId, request.getCustomerId(), request.getAmount(), request.getStatus(), request.getProduct(), request.getQuantity(), Instant.now());
         producer.publish(event);
         return "Order Created: " + orderId;

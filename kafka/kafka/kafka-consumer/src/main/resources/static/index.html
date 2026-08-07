@@ -156,7 +156,7 @@
                                 ${order.status}
                             </span>
                         </td>
-                        <td>${order.orderDate ?? ''}</td>
+                        <td>${order.orderDate ? new Date(order.orderDate).toLocaleDateString('en-GB') : ''}</td>
                         <td>
                         <select class="status-select" id="status-${order.orderId}">
                             <option value="NEW" ${order.status === 'NEW' ? 'selected' : ''}>
