@@ -1,21 +1,28 @@
 package com.bksoft.kafka_producer.models;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public class Order {
     private String orderId;
     private String customerId;
     private BigDecimal amount;
     private String status;
+    private String product;
+    private Integer quantity;
+    private Instant orderDate;
 
     public Order() {
     }
 
-    public Order(String orderId, String customerId, BigDecimal amount, String status) {
+    public Order(String orderId, String customerId, BigDecimal amount, String status, String product, Integer quantity, Instant orderDate) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.amount = amount;
         this.status = status;
+        this.product = product;
+        this.quantity = quantity;
+        this.orderDate = orderDate;
     }
 
     public String getOrderId() {
@@ -48,5 +55,29 @@ public class Order {
 
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
+    }
+
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Instant getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(Instant orderDate) {
+        this.orderDate = orderDate;
     }
 }
