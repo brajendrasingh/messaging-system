@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,.2);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1976d2;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .NEW {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .PROCESSING {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .SHIPPED {
+            background: #ede7f6;
+            color: #6a1b9a;
+        }
+
+        .DELIVERED {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .CANCELLED {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .error {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Order Details</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer ID</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Order Date</th>
+        </tr>
+        </thead>
+        <tbody id="orderTable">
+        </tbody>
+    </table>
+    <div id="error" class="error"></div>
+</div>
+<script>
+    async function loadOrders() {
+        try {
+            const response = await fetch("/api/orders");
+            if(!response.ok) {
+                throw new Error("Unable to fetch orders");
+            }
+            const orders = await response.json();
+            const table = document.getElementById("orderTable");
+            table.innerHTML = "";
+            orders.forEach(order => {
+                const row = `
+                    <tr>
+                        <td>${order.orderId}</td>
+                        <td>${order.customerId}</td>
+                        <td>${order.product}</td>
+                        <td>${order.quantity}</td>
+                        <td>${order.amount}</td>
+                        <td>
+                            <span class="status ${order.status}">
+                                ${order.status}
+                            </span>
+                        </td>
+                        <td>${order.orderDate ?? ''}</td>
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
+        } catch(error) {
+            document.getElementById("error").innerHTML = error.message;
+        }
+    }
+    // Load orders when page opens
+    loadOrders();
+</script>
+</body>
+</html>

@@ -1,9 +1,9 @@
-package com.bksoft.kafka_consumer.model;
+package com.bksoft.kafka_consumer.api.response;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Order {
+public class OrderResponse {
     private String orderId;
     private String customerId;
     private BigDecimal amount;
@@ -12,10 +12,10 @@ public class Order {
     private Integer quantity;
     private Instant orderDate;
 
-    public Order() {
+    public OrderResponse() {
     }
 
-    public Order(String orderId, String customerId, BigDecimal amount, String status, String product, Integer quantity, Instant orderDate) {
+    public OrderResponse(String orderId, String customerId, BigDecimal amount, String status, String product, Integer quantity, Instant orderDate) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.amount = amount;
