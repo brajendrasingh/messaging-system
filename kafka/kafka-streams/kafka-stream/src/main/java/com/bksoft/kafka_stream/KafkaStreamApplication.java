@@ -1,14 +1,13 @@
-package com.bksoft.kafka;
+package com.bksoft.kafka_stream;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class KafkaPocApplication {
+public class KafkaStreamApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KafkaPocApplication.class, args);
+		SpringApplication.run(KafkaStreamApplication.class, args);
 	}
 
 }
-
