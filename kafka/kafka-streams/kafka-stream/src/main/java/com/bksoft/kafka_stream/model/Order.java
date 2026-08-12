@@ -80,5 +80,18 @@ public class Order {
     public void setOrderDate(Instant orderDate) {
         this.orderDate = orderDate;
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderId='" + orderId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", amount=" + amount +
+                ", status='" + status + '\'' +
+                ", product='" + product + '\'' +
+                ", quantity=" + quantity +
+                ", orderDate=" + orderDate +
+                '}';
+    }
 }
 

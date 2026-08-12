@@ -21,7 +21,10 @@ public class OrderStreamProcessor {
     @Bean
     public KStream<String, Order> processOrders(StreamsBuilder builder) {
         KStream<String, Order> orders = builder.stream(orderTopic);
-        orders.filter((key, order) -> order.getAmount().compareTo(BigDecimal.valueOf(1000)) > 0).to(highValueOrderTopic);
+        orders.filter((key, order) -> order.getAmount().compareTo(BigDecimal.valueOf(1000)) > 0)
+        .peek((key, order) -> System.out.println(key + " -> " + order))
+        .to(highValueOrderTopic);
+
         return orders;
     }
 }
