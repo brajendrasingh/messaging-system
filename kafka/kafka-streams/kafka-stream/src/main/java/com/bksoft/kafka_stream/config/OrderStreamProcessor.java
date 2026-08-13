@@ -22,6 +22,12 @@ public class OrderStreamProcessor {
     public KStream<String, Order> processOrders(StreamsBuilder builder) {
         KStream<String, Order> orders = builder.stream(orderTopic);
         orders.filter((key, order) -> order.getAmount().compareTo(BigDecimal.valueOf(1000)) > 0)
+        .mapValues(order -> {
+            if ("NEW".equalsIgnoreCase(order.getStatus())) {
+                order.setStatus("PROCESSING");
+            }
+            return order;
+        })
         .peek((key, order) -> System.out.println(key + " -> " + order))
         .to(highValueOrderTopic);
 

@@ -30,7 +30,7 @@
         "type": "function",
         "z": "f1a2b3c4d5e6f701",
         "name": "Generate Random Order",
-        "func": "const products = [\n    \"Laptop\",\n    \"Mouse\",\n    \"Keyboard\",\n    \"Monitor\",\n    \"Headphone\",\n    \"Mobile\",\n    \"Tablet\"\n];\n\nconst statuses = [\n    \"CREATED\",\n    \"PROCESSING\",\n    \"SHIPPED\",\n    \"DELIVERED\"\n];\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    customerId: \"CUST-\" + Math.floor(Math.random() * 10000),\n    amount: parseFloat((Math.random() * 50000 + 100).toFixed(2)),\n    orderId: Date.now(),\n    product: products[Math.floor(Math.random() * products.length)],\n    quantity: Math.floor(Math.random() * 10) + 1,\n    status: statuses[Math.floor(Math.random() * statuses.length)]\n};\n\nreturn msg;",
+        "func": "const products = [\n    \"Laptop\",\n    \"Mouse\",\n    \"Keyboard\",\n    \"Monitor\",\n    \"Headphone\",\n    \"Mobile\",\n    \"Router\",\n    \"Switch\",\n    \"Tablet\"\n];\n\nconst statuses = [\n    \"NEW\",\n    \"CREATED\",\n    \"PROCESSING\",\n    \"SHIPPED\",\n    \"DELIVERED\"\n];\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    customerId: \"CUST-\" + Math.floor(Math.random() * 10000),\n    amount: parseFloat((Math.random() * 50000 + 100).toFixed(2)),\n    orderId: Date.now(),\n    product: products[Math.floor(Math.random() * products.length)],\n    quantity: Math.floor(Math.random() * 10) + 1,\n    status: statuses[Math.floor(Math.random() * statuses.length)]\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
