@@ -89,4 +89,5 @@ volumes:
 
 networks:
   broker-network:
+    name: broker-network
     driver: bridge
