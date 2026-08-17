@@ -14,3 +14,4 @@ spring:
 app:
   kafka:
     order-topic: orders
+    sensor-topic: sensors
