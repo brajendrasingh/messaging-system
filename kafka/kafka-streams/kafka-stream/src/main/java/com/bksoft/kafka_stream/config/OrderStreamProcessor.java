@@ -15,6 +15,7 @@ import java.time.Duration;
 
 @Configuration
 public class OrderStreamProcessor {
+    private JacksonJsonSerde<Order> orderSerde = new JacksonJsonSerde<>(Order.class);
 
     @Value("${app.kafka.order-topic}")
     private String orderTopic;
@@ -24,7 +25,8 @@ public class OrderStreamProcessor {
 
     @Bean
     public KStream<String, Order> processOrders(StreamsBuilder builder) {
-        KStream<String, Order> orders = builder.stream(orderTopic);
+        orderSerde.ignoreTypeHeaders();
+        KStream<String, Order> orders = builder.stream(orderTopic, Consumed.with(Serdes.String(), orderSerde));
         orders.filter((key, order) -> order.getAmount().compareTo(BigDecimal.valueOf(1000)) > 0)
         .mapValues(order -> {
             if ("NEW".equalsIgnoreCase(order.getStatus())) {
@@ -40,9 +42,11 @@ public class OrderStreamProcessor {
 
     @Bean
     public KTable<Windowed<String>, Double> ordersAvgPrice(StreamsBuilder builder) {
-        KStream<String, Order> orders = builder.stream(orderTopic);
+        orderSerde.ignoreTypeHeaders();
+        KStream<String, Order> orders = builder.stream(orderTopic, Consumed.with(Serdes.String(), orderSerde));
 
         KTable<Windowed<String>, Double> result = orders.filter((key, order) -> order != null && order.getAmount() != null)
+                .peek((key, order) -> System.out.println("Payload: " + key + " -> " + order))
                 // Put all orders into one group
                 .selectKey((key, order) -> "ALL")
                 // Group orders
@@ -53,7 +57,7 @@ public class OrderStreamProcessor {
                             average.sum += order.getAmount().doubleValue();
                             average.count++;
                             return average;
-                        }, Materialized.as("order-average-store")
+                        }, Materialized.with(Serdes.String(), new JacksonJsonSerde<>(OrderAverage.class))
                 ).mapValues(OrderAverage::getAverage); // Convert OrderAverage to average Double
 
         // Print the result whenever the KTable is updated

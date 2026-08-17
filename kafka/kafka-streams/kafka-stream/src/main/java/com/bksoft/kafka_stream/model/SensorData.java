@@ -50,4 +50,14 @@ public class SensorData {
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "SensorData{" +
+                "sensorId='" + sensorId + '\'' +
+                ", temperatures=" + temperatures +
+                ", humidity=" + humidity +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

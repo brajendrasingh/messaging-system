@@ -34,4 +34,12 @@ public class OrderAverage {
     public void setCount(long count) {
         this.count = count;
     }
+
+    @Override
+    public String toString() {
+        return "OrderAverage{" +
+                "sum=" + sum +
+                ", count=" + count +
+                '}';
+    }
 }

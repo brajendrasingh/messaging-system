@@ -27,4 +27,12 @@ public class Temperature {
     public void setValue(Double value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "Temperature{" +
+                "name='" + name + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }
