@@ -1,0 +1,108 @@
+[
+    {
+        "id": "sensor-tab",
+        "type": "tab",
+        "label": "Random Sensor Producer",
+        "disabled": false
+    },
+    {
+        "id": "sensor-inject",
+        "type": "inject",
+        "z": "sensor-tab",
+        "name": "Send Sensor Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 120,
+        "wires": [
+            [
+                "sensor-function"
+            ]
+        ]
+    },
+    {
+        "id": "sensor-function",
+        "type": "function",
+        "z": "sensor-tab",
+        "name": "Generate Random Sensor",
+        "func": "// Random sensor ID\nconst sensorNumber = Math.floor(Math.random() * 5) + 1;\nconst sensorId = \"SENSOR-00\" + sensorNumber;\n\n// Random temperature between 0 and 3\n// This allows some readings to cross your 1.0 threshold\nconst temperature = Number((Math.random() * 3).toFixed(2));\n\n// Random humidity between 40 and 90\nconst humidity = Number((40 + Math.random() * 50).toFixed(2));\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sensorId: sensorId,\n    temperatures: [\n        {\n            name: \"temperature\",\n            value: temperature\n        }\n    ],\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 120,
+        "wires": [
+            [
+                "sensor-debug-request",
+                "sensor-http"
+            ]
+        ]
+    },
+    {
+        "id": "sensor-debug-request",
+        "type": "debug",
+        "z": "sensor-tab",
+        "name": "Random Sensor Payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 650,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "sensor-http",
+        "type": "http request",
+        "z": "sensor-tab",
+        "name": "POST /api/sensors",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8081/api/sensors",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 650,
+        "y": 120,
+        "wires": [
+            [
+                "sensor-debug-response"
+            ]
+        ]
+    },
+    {
+        "id": "sensor-debug-response",
+        "type": "debug",
+        "z": "sensor-tab",
+        "name": "API Response",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 880,
+        "y": 120,
+        "wires": []
+    }
+]
