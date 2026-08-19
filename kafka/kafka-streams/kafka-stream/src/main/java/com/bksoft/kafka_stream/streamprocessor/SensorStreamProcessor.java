@@ -44,7 +44,7 @@ public class SensorStreamProcessor {
                     aggregate.add(sensor);
                     return aggregate;
                 }, Materialized.with(Serdes.String(), new JacksonJsonSerde<>(SensorDataAggregate.class)))
-                .toStream().peek((key, aggregate) -> System.out.println("5-minute average humidity: Sensor -> " + key + " average -> " + aggregate.getAverageHumidity()));
+                .toStream().peek((key, aggregate) -> System.out.println("5 Minute average humidity: SensorId -> " + key.key() + ", Average -> " + aggregate.getAverageHumidity()));
 
         averageHumidity.to(averageHumidityIn5Minutes);
 
@@ -63,7 +63,7 @@ public class SensorStreamProcessor {
                     aggregate.add(sensor);
                     return aggregate;
                 }, Materialized.with(Serdes.String(), new JacksonJsonSerde<>(SensorDataAggregate.class)))
-                .toStream().peek((key, aggregate) -> System.out.println("5-minute average temperature: Sensor -> " + key + " average -> " + aggregate.getAverageTemperature()));
+                .toStream().peek((key, aggregate) -> System.out.println("5 Minute average temperature: SensorId -> " + key.key() + ", Average -> " + aggregate.getAverageTemperature()));
 
         averageTemperature.to(averageTemperatureIn5Minutes);
 
@@ -77,7 +77,7 @@ public class SensorStreamProcessor {
         KStream<String, SensorData> sensors = builder.stream(sensorTopic, Consumed.with(Serdes.String(), sensorSerde));
         KStream<String, SensorData> breaches = sensors.filter((key, sensor) -> sensor != null && sensor.getTemperatures() != null
                         && sensor.getTemperatures().stream().anyMatch(t -> t.getValue() != null && (t.getValue() < 1.0 || t.getValue() > 3.0)))
-                .peek((key, sensor) -> System.out.println("Threshold breach: Sensor -> " + key + " -> " + sensor));
+                .peek((key, sensor) -> System.out.println("Threshold breach: SensorId -> " + key + ", Sensor -> " + sensor));
 
         breaches.to(thresholdBreachesTopic, Produced.with(Serdes.String(), sensorSerde));
         return sensors;
@@ -96,7 +96,7 @@ public class SensorStreamProcessor {
                     }
                     double value = temperature.getValue();
                     return value < 0.0 || value > 3.0;
-                }).peek((key, sensor) -> System.out.println("Temperature Anomalies detected: Sensor -> " + key + ", Temperature -> " + sensor.getTemperatures().get(0).getValue()));
+                }).peek((key, sensor) -> System.out.println("Temperature Anomalies detected: SensorId -> " + key + ", Temperature -> " + sensor.getTemperatures().get(0).getValue()));
         anomalies.to(temperaturesAnomaliesTopic, Produced.with(Serdes.String(), sensorSerde));
         return sensors;
     }

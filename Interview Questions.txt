@@ -1,0 +1,5 @@
+1: If we have Kafka running in production and the number of partitions is equal to the number of consumers, but we are still experiencing consumer lag, what could be the possible causes? Please explain?
+
+2: We have a Kafka topic with 5 partitions. There are 5 standalone consumers (operating without a consumer group) and 1 consumer group containing 5 consumers. How will the partitions be assigned, and how will messages be consumed across these instances?
+
+3:
