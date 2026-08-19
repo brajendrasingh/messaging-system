@@ -2,13 +2,10 @@ package com.bksoft.kafka_stream.streamprocessor;
 
 import com.bksoft.kafka_stream.model.SensorData;
 import com.bksoft.kafka_stream.model.SensorDataAggregate;
+import com.bksoft.kafka_stream.model.Temperature;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.TimeWindows;
+import org.apache.kafka.streams.kstream.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,70 +20,85 @@ public class SensorStreamProcessor {
     @Value("${app.kafka.sensor-topic}")
     private String sensorTopic;
 
-    @Value("${app.kafka.high-temperatures-topic}")
-    private String highTemperaturesTopic;
+    @Value("${app.kafka.sensor-temperatures-anomalies-topic}")
+    private String temperaturesAnomaliesTopic;
 
-    @Value("${app.kafka.high-temperatures-5min-topic}")
-    private String highTemperature5Min;
+    @Value("${app.kafka.sensor-threshold-breaches-topic}")
+    private String thresholdBreachesTopic;
 
-    @Bean
-    public KStream<String, SensorData> processSensorData(StreamsBuilder builder) {
+    @Value("${app.kafka.avg-temperature-in-5min-topic}")
+    private String averageTemperatureIn5Minutes;
+
+    @Value("${app.kafka.avg-humidity-in-5min-topic}")
+    private String averageHumidityIn5Minutes;
+
+    @Bean // average sensor humidity in 5 minutes
+    public KStream<Windowed<String>, SensorDataAggregate> averageHumidityIn5Minutes(StreamsBuilder builder) {
         sensorSerde.ignoreTypeHeaders();
         KStream<String, SensorData> sensors = builder.stream(sensorTopic, Consumed.with(Serdes.String(), sensorSerde));
-        sensors.filter((key, sensor) -> sensor != null && sensor.getTemperatures() != null && sensor.getTemperatures().stream().anyMatch(t -> t.getValue() != null && t.getValue() > 1.0))
-                .peek((key, sensor) -> System.out.println(key + " -> " + sensor))
-                .to(highTemperaturesTopic);
-
-        return sensors;
-    }
-
-    @Bean
-    public KStream<String, SensorData> averageHumidityIn5Minutes(StreamsBuilder builder) {
-        sensorSerde.ignoreTypeHeaders();
-        KStream<String, SensorData> sensors = builder.stream(sensorTopic, Consumed.with(Serdes.String(), sensorSerde));
-        sensors.selectKey((key, sensor) -> sensor.getSensorId())  // Use sensorId as the Kafka Streams key
-                // Create 5-minute tumbling windows
-                .groupByKey()
+        KStream<Windowed<String>, SensorDataAggregate> averageHumidity = sensors.selectKey((key, sensor) -> sensor.getSensorId())  // Use sensorId as the Kafka Streams key
+                .groupByKey() // Create 5-minute tumbling windows
                 .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
                 // Process all SensorData records received during the 5-minute window
                 .aggregate(SensorDataAggregate::new, (sensorId, sensor, aggregate) -> {
-                            aggregate.add(sensor);
-                            return aggregate;
-                        }, Materialized.with(Serdes.String(), new JacksonJsonSerde<>(SensorDataAggregate.class))
-                )
-                // Convert Windowed<String> back to String
-                .toStream()
-                .filter((windowedKey, aggregate) -> aggregate.hasHighTemperature())
-                .map((windowedKey, aggregate) -> KeyValue.pair(windowedKey.key(), aggregate.toSensorData()))
-                .peek((key, sensor) -> System.out.println("5-minute window -> " + key + " -> " + sensor))
-                .to(highTemperature5Min);
+                    aggregate.add(sensor);
+                    return aggregate;
+                }, Materialized.with(Serdes.String(), new JacksonJsonSerde<>(SensorDataAggregate.class)))
+                .toStream().peek((key, aggregate) -> System.out.println("5-minute average humidity: Sensor -> " + key + " average -> " + aggregate.getAverageHumidity()));
 
-        return sensors;
+        averageHumidity.to(averageHumidityIn5Minutes);
+
+        return averageHumidity;
     }
 
-    @Bean
-    public KStream<String, SensorData> averageTemperatureIn5Minutes(StreamsBuilder builder) {
+    @Bean // average sensor temperature in 5 minutes
+    public KStream<Windowed<String>, SensorDataAggregate> averageTemperatureIn5Minutes(StreamsBuilder builder) {
         sensorSerde.ignoreTypeHeaders();
         KStream<String, SensorData> sensors = builder.stream(sensorTopic, Consumed.with(Serdes.String(), sensorSerde));
+        KStream<Windowed<String>, SensorDataAggregate> averageTemperature = sensors.selectKey((key, sensor) -> sensor.getSensorId())  // Use sensorId as the Kafka Streams key
+                .groupByKey() // Create 5-minute tumbling windows
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+                // Process all SensorData records received during the 5-minute window
+                .aggregate(SensorDataAggregate::new, (sensorId, sensor, aggregate) -> {
+                    aggregate.add(sensor);
+                    return aggregate;
+                }, Materialized.with(Serdes.String(), new JacksonJsonSerde<>(SensorDataAggregate.class)))
+                .toStream().peek((key, aggregate) -> System.out.println("5-minute average temperature: Sensor -> " + key + " average -> " + aggregate.getAverageTemperature()));
 
-        return sensors;
+        averageTemperature.to(averageTemperatureIn5Minutes);
+
+        return averageTemperature;
+
     }
 
-    @Bean
+    @Bean //Threshold breach: Allowed temperature range is: 1°C - 3°C
     public KStream<String, SensorData> detectSensorThresholdBreaches(StreamsBuilder builder) {
         sensorSerde.ignoreTypeHeaders();
         KStream<String, SensorData> sensors = builder.stream(sensorTopic, Consumed.with(Serdes.String(), sensorSerde));
+        KStream<String, SensorData> breaches = sensors.filter((key, sensor) -> sensor != null && sensor.getTemperatures() != null
+                        && sensor.getTemperatures().stream().anyMatch(t -> t.getValue() != null && (t.getValue() < 1.0 || t.getValue() > 3.0)))
+                .peek((key, sensor) -> System.out.println("Threshold breach: Sensor -> " + key + " -> " + sensor));
 
-
+        breaches.to(thresholdBreachesTopic);
         return sensors;
     }
 
-    @Bean
+    @Bean //Temperature Anomalies
     public KStream<String, SensorData> detectTemperatureAnomalies(StreamsBuilder builder) {
         sensorSerde.ignoreTypeHeaders();
         KStream<String, SensorData> sensors = builder.stream(sensorTopic, Consumed.with(Serdes.String(), sensorSerde));
-
-
+        KStream<String, SensorData> anomalies = sensors.selectKey((key, sensor) -> sensor.getSensorId())
+                .filter((key, sensor) -> sensor != null && sensor.getTemperatures() != null && !sensor.getTemperatures().isEmpty())
+                .filter((key, sensor) -> {
+                    Temperature temperature = sensor.getTemperatures().get(0);
+                    if (temperature.getValue() != null) {
+                        return false;
+                    }
+                    double value = temperature.getValue();
+                    return value < 0.0 || value > 3.0;
+                })
+                .peek((key, sensor) -> System.out.println("Temperature Anomalies detected: Sensor -> " + key + " -> " + sensor));
+        anomalies.to(temperaturesAnomaliesTopic);
         return sensors;
     }
 }

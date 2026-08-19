@@ -25,25 +25,31 @@ public class SensorDataAggregate {
     private Instant lastTimestamp;
 
     public void add(SensorData sensor) {
-
         this.sensorId = sensor.getSensorId();
-
+        //Temperature Aggregation
         if (sensor.getTemperatures() != null) {
-            temperatures.addAll(sensor.getTemperatures());
+            sensor.getTemperatures().forEach(t -> {
+                if (t.getValue() != null) {
+                    temperatures.add(t);
+                    temperatureSum += t.getValue();
+                    temperatureCount++;
+                }
+            });
         }
-
+        //Humidity Aggregation
         if (sensor.getHumidity() != null) {
+            humidities.add(sensor.getHumidity());
             humiditySum += sensor.getHumidity();
+            humidityCount++;
         }
+        if (sensor.getTimestamp() != null) {
+            if (firstTimestamp == null || sensor.getTimestamp().isBefore(firstTimestamp)) {
+                firstTimestamp = sensor.getTimestamp();
+            }
 
-        humidityCount++;
-
-        if (firstTimestamp == null || sensor.getTimestamp().isBefore(firstTimestamp)) {
-            firstTimestamp = sensor.getTimestamp();
-        }
-
-        if (lastTimestamp == null || sensor.getTimestamp().isAfter(lastTimestamp)) {
-            lastTimestamp = sensor.getTimestamp();
+            if (lastTimestamp == null || sensor.getTimestamp().isAfter(lastTimestamp)) {
+                lastTimestamp = sensor.getTimestamp();
+            }
         }
     }
 
@@ -66,14 +72,14 @@ public class SensorDataAggregate {
         return sensorData;
     }
 
-    public Double getAverageTemperature() {
+    public double getAverageTemperature() {
         if (temperatureCount == 0) {
             return 0.0;
         }
         return temperatureSum / temperatureCount;
     }
 
-    public Double getAverageHumidity() {
+    public double getAverageHumidity() {
         if (humidityCount == 0) {
             return 0.0;
         }
@@ -81,7 +87,15 @@ public class SensorDataAggregate {
     }
 
     public boolean isTemperatureAnomaly(double temperature) {
-        return temperatures.stream().anyMatch(t -> t != null && t.getValue() != null && (t.getValue() < 40.0 || t.getValue() > 60.0));
+        if (temperatureCount == 0) {
+            return false;
+        }
+        double average = getAverageTemperature();
+        if (average == 0.0) {
+            return false;
+        }
+        double deviation = Math.abs(temperature - average);
+        return deviation > average * 0.50;
     }
 
     public String getSensorId() {
