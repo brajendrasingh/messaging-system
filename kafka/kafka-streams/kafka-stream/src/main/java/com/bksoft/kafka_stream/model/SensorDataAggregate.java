@@ -10,9 +10,15 @@ public class SensorDataAggregate {
 
     private List<Temperature> temperatures = new ArrayList<>();
 
+    private List<Temperature> humidities = new ArrayList<>();
+
     private Double humiditySum = 0.0;
 
-    private int count = 0;
+    private int humidityCount = 0;
+
+    private Double temperatureSum = 0.0;
+
+    private int temperatureCount = 0;
 
     private Instant firstTimestamp;
 
@@ -30,37 +36,29 @@ public class SensorDataAggregate {
             humiditySum += sensor.getHumidity();
         }
 
-        count++;
+        humidityCount++;
 
-        if (firstTimestamp == null ||
-                sensor.getTimestamp().isBefore(firstTimestamp)) {
+        if (firstTimestamp == null || sensor.getTimestamp().isBefore(firstTimestamp)) {
             firstTimestamp = sensor.getTimestamp();
         }
 
-        if (lastTimestamp == null ||
-                sensor.getTimestamp().isAfter(lastTimestamp)) {
+        if (lastTimestamp == null || sensor.getTimestamp().isAfter(lastTimestamp)) {
             lastTimestamp = sensor.getTimestamp();
         }
     }
 
     public boolean hasHighTemperature() {
-
-        return temperatures.stream()
-                .anyMatch(t ->
-                        t.getValue() != null &&
-                                t.getValue() > 1.0
-                );
+        return temperatures.stream().anyMatch(t -> t.getValue() != null && t.getValue() > 1.0);
     }
 
     public SensorData toSensorData() {
-
         SensorData sensorData = new SensorData();
 
         sensorData.setSensorId(sensorId);
         sensorData.setTemperatures(temperatures);
 
-        if (count > 0) {
-            sensorData.setHumidity(humiditySum / count);
+        if (humidityCount > 0) {
+            sensorData.setHumidity(humiditySum / humidityCount);
         }
 
         sensorData.setTimestamp(lastTimestamp);
@@ -92,12 +90,12 @@ public class SensorDataAggregate {
         this.humiditySum = humiditySum;
     }
 
-    public int getCount() {
-        return count;
+    public int getHumidityCount() {
+        return humidityCount;
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public void setHumidityCount(int humidityCount) {
+        this.humidityCount = humidityCount;
     }
 
     public Instant getFirstTimestamp() {
@@ -116,13 +114,40 @@ public class SensorDataAggregate {
         this.lastTimestamp = lastTimestamp;
     }
 
+    public List<Temperature> getHumidities() {
+        return humidities;
+    }
+
+    public void setHumidities(List<Temperature> humidities) {
+        this.humidities = humidities;
+    }
+
+    public Double getTemperatureSum() {
+        return temperatureSum;
+    }
+
+    public void setTemperatureSum(Double temperatureSum) {
+        this.temperatureSum = temperatureSum;
+    }
+
+    public int getTemperatureCount() {
+        return temperatureCount;
+    }
+
+    public void setTemperatureCount(int temperatureCount) {
+        this.temperatureCount = temperatureCount;
+    }
+
     @Override
     public String toString() {
         return "SensorDataAggregate{" +
                 "sensorId='" + sensorId + '\'' +
                 ", temperatures=" + temperatures +
+                ", humidities=" + humidities +
                 ", humiditySum=" + humiditySum +
-                ", count=" + count +
+                ", humidityCount=" + humidityCount +
+                ", temperatureSum=" + temperatureSum +
+                ", temperatureCount=" + temperatureCount +
                 ", firstTimestamp=" + firstTimestamp +
                 ", lastTimestamp=" + lastTimestamp +
                 '}';

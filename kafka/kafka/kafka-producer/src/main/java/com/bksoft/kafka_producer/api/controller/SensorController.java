@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -26,12 +25,10 @@ public class SensorController {
 
     @PostMapping("/sensors")
     public ResponseEntity<SensorDataResponse> createSensorData(@RequestBody SensorDataRequest request) {
-        String sensorId = UUID.randomUUID().toString().replace("-", "");
-
-        SensorData event = new SensorData(sensorId, request.getTemperatures(), request.getHumidity(), Instant.now());
+        SensorData event = new SensorData(request.getSensorId(), request.getTemperatures(), request.getHumidity(), Instant.now());
 
         producer.publish(event);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new SensorDataResponse());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new SensorDataResponse(request.getSensorId(), "created"));
     }
 }
