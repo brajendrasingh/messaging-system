@@ -79,7 +79,7 @@ public class SensorStreamProcessor {
                         && sensor.getTemperatures().stream().anyMatch(t -> t.getValue() != null && (t.getValue() < 1.0 || t.getValue() > 3.0)))
                 .peek((key, sensor) -> System.out.println("Threshold breach: Sensor -> " + key + " -> " + sensor));
 
-        breaches.to(thresholdBreachesTopic);
+        breaches.to(thresholdBreachesTopic, Produced.with(Serdes.String(), sensorSerde));
         return sensors;
     }
 
@@ -91,14 +91,13 @@ public class SensorStreamProcessor {
                 .filter((key, sensor) -> sensor != null && sensor.getTemperatures() != null && !sensor.getTemperatures().isEmpty())
                 .filter((key, sensor) -> {
                     Temperature temperature = sensor.getTemperatures().get(0);
-                    if (temperature.getValue() != null) {
+                    if (temperature.getValue() == null) {
                         return false;
                     }
                     double value = temperature.getValue();
                     return value < 0.0 || value > 3.0;
-                })
-                .peek((key, sensor) -> System.out.println("Temperature Anomalies detected: Sensor -> " + key + " -> " + sensor));
-        anomalies.to(temperaturesAnomaliesTopic);
+                }).peek((key, sensor) -> System.out.println("Temperature Anomalies detected: Sensor -> " + key + ", Temperature -> " + sensor.getTemperatures().get(0).getValue()));
+        anomalies.to(temperaturesAnomaliesTopic, Produced.with(Serdes.String(), sensorSerde));
         return sensors;
     }
 }
