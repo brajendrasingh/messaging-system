@@ -2,7 +2,7 @@ services:
   # =========================
   # Kafka Stream
   # =========================
-  kafka-producer:
+  kafka-stream:
     image: kafka-stream:1.0
     build:
       context: ./../

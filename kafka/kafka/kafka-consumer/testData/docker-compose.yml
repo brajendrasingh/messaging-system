@@ -2,7 +2,7 @@ services:
   # =========================
   # Kafka Consumer
   # =========================
-  kafka-producer:
+  kafka-consumer:
     image: kafka-consumer:1.0
     build:
       context: ./../
