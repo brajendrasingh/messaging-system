@@ -19,9 +19,9 @@ services:
   # Kafka Producer
   # =========================
   kafka-producer:
-    #image: kafka-producer:0.0.1-SNAPSHOT
+    image: kafka-producer:1.0
     build:
-      context: ./kafka-producer
+      context: ./../
       dockerfile: Dockerfile
     container_name: kafka-producer
     restart: unless-stopped

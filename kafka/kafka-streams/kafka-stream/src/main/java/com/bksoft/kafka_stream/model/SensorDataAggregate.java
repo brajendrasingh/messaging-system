@@ -10,7 +10,7 @@ public class SensorDataAggregate {
 
     private List<Temperature> temperatures = new ArrayList<>();
 
-    private List<Temperature> humidities = new ArrayList<>();
+    private List<Double> humidities = new ArrayList<>();
 
     private Double humiditySum = 0.0;
 
@@ -66,6 +66,24 @@ public class SensorDataAggregate {
         return sensorData;
     }
 
+    public Double getAverageTemperature() {
+        if (temperatureCount == 0) {
+            return 0.0;
+        }
+        return temperatureSum / temperatureCount;
+    }
+
+    public Double getAverageHumidity() {
+        if (humidityCount == 0) {
+            return 0.0;
+        }
+        return humiditySum / humidityCount;
+    }
+
+    public boolean isTemperatureAnomaly(double temperature) {
+        return temperatures.stream().anyMatch(t -> t != null && t.getValue() != null && (t.getValue() < 40.0 || t.getValue() > 60.0));
+    }
+
     public String getSensorId() {
         return sensorId;
     }
@@ -114,11 +132,11 @@ public class SensorDataAggregate {
         this.lastTimestamp = lastTimestamp;
     }
 
-    public List<Temperature> getHumidities() {
+    public List<Double> getHumidities() {
         return humidities;
     }
 
-    public void setHumidities(List<Temperature> humidities) {
+    public void setHumidities(List<Double> humidities) {
         this.humidities = humidities;
     }
 

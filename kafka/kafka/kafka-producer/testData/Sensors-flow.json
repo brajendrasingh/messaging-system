@@ -2,7 +2,7 @@
     {
         "id": "sensor-tab",
         "type": "tab",
-        "label": "Random Sensor Producer",
+        "label": "Sensor Data Producer",
         "disabled": false
     },
     {
@@ -74,7 +74,7 @@
         "method": "POST",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "http://localhost:8081/api/sensors",
+        "url": "http://host.docker.internal:8081/api/sensors",
         "tls": "",
         "persist": false,
         "proxy": "",
