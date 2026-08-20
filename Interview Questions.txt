@@ -1,5 +1,32 @@
-1: If we have Kafka running in production and the number of partitions is equal to the number of consumers, but we are still experiencing consumer lag, what could be the possible causes? Please explain?
+--------------------------------Kafka--------------------------------
+1: Mental model: Producer -> Topic -> Partition -> Consumer Group -> Consumer(offset-based consumption)
 
-2: We have a Kafka topic with 5 partitions. There are 5 standalone consumers (operating without a consumer group) and 1 consumer group containing 5 consumers. How will the partitions be assigned, and how will messages be consumed across these instances?
+2: If we have Kafka running in production and the number of partitions is equal to the number of consumers, but we are still experiencing consumer lag, what could be the possible causes? Please explain?
 
-3:
+3: We have a Kafka topic with 5 partitions. There are 5 standalone consumers (operating without a consumer group) and 1 consumer group containing 5 consumers. How will the partitions be assigned, and how will messages be consumed across these instances?
+
+4: Why choose Kafka in MSA? Why not RabbitMQ?
+Ans: I) Handles very large numbers of events/messages: Kafka is generally better for very high-volume streaming
+    II) Replayability
+   III) Kafka Streams
+    IV) Consumer group: multiple systems can independently consume
+	 V) Message persistence: Kafka's durable log is a core design principle: Event history(Append-only logs)
+	 
+5: Scalability: Kafka scales in 3 dimensions(Partitions,consumers,Broker). Increase partitions(parallelism) and consumers(processing capacity), if needed increase Broker(infrastructure capacity) as well
+
+6: ACK (acknowledgment) in Kafka?
+Ans: Only Producer uses ACK, Consumer do not use this while it uses(Offset commit)
+--------------------------------RabbitMQ--------------------------------
+1: What is Shovel Plugin in RabbitMQ?
+
+2: Mental model: Producer -> Exchange(Routing key) -> Queue -> Consumer/Listener -> ACK -> Message removed
+
+3: Scalability: increase Queue(it is done rarely so less common), consumers(Scale message-processing capacity), if needed increase Broker(called Node) as well
+
+4: if one queue becomes the bottleneck then how to scale?
+Ans: we publish to an exchange, and the exchange routes the message to one or more queues.
+Ex: Suppose your producer publishes: OrderCreated
+Your code publishes to: order.exchange          
+with a routing key: order.created
+Then RabbitMQ decides where the message goes. So here we can have multiple Queue
+This is where the exchange type matters. For example, with a consistent-hash exchange/plugin, you can distribute messages across queues based on a hash.
