@@ -1,3 +1,5 @@
+Types of Messaging: 1)Point to Point = RabbitMQ  2)Publish/Subscribe = Kafka
+
 --------------------------------Kafka--------------------------------
 1: Mental model: Producer -> Topic -> Partition -> Consumer Group -> Consumer(offset-based consumption)
 
@@ -14,12 +16,25 @@ Ans: I) Handles very large numbers of events/messages: Kafka is generally better
 	 
 5: Scalability: Kafka scales in 3 dimensions(Partitions,consumers,Broker). Increase partitions(parallelism) and consumers(processing capacity), if needed increase Broker(infrastructure capacity) as well
 
+Note:  In the older ZooKeeper-based Kafka architecture, you normally scale Kafka brokers to handle increased message throughput, storage, and client load not the ZooKeeper.
+   In older ZooKeeper-based Kafka, Kafka brokers and ZooKeeper were separate components and were scaled independently. In KRaft, ZooKeeper is removed. If using combined broker-controller nodes, adding a Kafka node adds both roles.
+   So for a combined KRaft setup configure this, like KAFKA_PROCESS_ROLES=broker,controller
+   
 6: ACK (acknowledgment) in Kafka?
 Ans: Only Producer uses ACK, Consumer do not use this while it uses(Offset commit)
---------------------------------RabbitMQ--------------------------------
-1: What is Shovel Plugin in RabbitMQ?
 
-2: Mental model: Producer -> Exchange(Routing key) -> Queue -> Consumer/Listener -> ACK -> Message removed
+7: AWS service : Amazon Kinesis = Kafka
+
+8: How to debug or see logs in kafka?
+
+9: How to secure kafka cluster server?
+
+10: Kafka key selection approaches?
+Ans: key determines which partition receives the message. partition = hash(key) % numberOfPartitions
+--------------------------------RabbitMQ--------------------------------
+1: Mental model: Producer -> Exchange(Routing key) -> Queue -> Consumer/Listener -> ACK -> Message removed
+
+2: What is Shovel Plugin in RabbitMQ?
 
 3: Scalability: increase Queue(it is done rarely so less common), consumers(Scale message-processing capacity), if needed increase Broker(called Node) as well
 
@@ -30,3 +45,7 @@ Your code publishes to: order.exchange
 with a routing key: order.created
 Then RabbitMQ decides where the message goes. So here we can have multiple Queue
 This is where the exchange type matters. For example, with a consistent-hash exchange/plugin, you can distribute messages across queues based on a hash.
+
+5: AWS service : Amazon SQS = Queue
+
+6:
