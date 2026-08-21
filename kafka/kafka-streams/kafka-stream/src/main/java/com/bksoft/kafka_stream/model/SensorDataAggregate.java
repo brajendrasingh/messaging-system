@@ -54,7 +54,7 @@ public class SensorDataAggregate {
     }
 
     public boolean hasHighTemperature() {
-        return temperatures.stream().anyMatch(t -> t.getValue() != null && t.getValue() > 1.0);
+        return temperatures.stream().anyMatch(t -> t.getValue() != null && t.getValue() > 40.0);
     }
 
     public SensorData toSensorData() {

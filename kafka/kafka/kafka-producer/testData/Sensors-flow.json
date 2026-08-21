@@ -35,7 +35,7 @@
         "type": "function",
         "z": "sensor-tab",
         "name": "Generate Random Sensor",
-        "func": "// Random sensor ID\nconst sensorNumber = Math.floor(Math.random() * 5) + 1;\nconst sensorId = \"SENSOR-00\" + sensorNumber;\n\n// Random temperature between 0 and 3\n// This allows some readings to cross your 1.0 threshold\nconst temperature = Number((Math.random() * 100).toFixed(2));\n\n// Random humidity between 40 and 90\nconst humidity = Number((40 + Math.random() * 50).toFixed(2));\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sensorId: sensorId,\n    temperatures: [\n        {\n            name: \"temperature\",\n            value: temperature\n        }\n    ],\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "func": "// Random sensor ID\nconst sensorNumber = Math.floor(Math.random() * 5) + 1;\nconst sensorId = \"SENSOR-00\" + sensorNumber;\n\n// Random temperature between 0 and 100\n// This allows some readings to cross your 1.0 threshold\nconst temperature = Number((Math.random() * 100).toFixed(2));\n\n// Random humidity between 40 and 90\nconst humidity = Number((40 + Math.random() * 50).toFixed(2));\n\nmsg.headers = {\n    \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n    sensorId: sensorId,\n    temperatures: [\n        {\n            name: \"temperature\",\n            value: temperature\n        }\n    ],\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
