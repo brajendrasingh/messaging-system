@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: nodered/node-red
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: NodePort
+  port: 1880
+  targetPort: 1880
+  nodePort: 31880
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
