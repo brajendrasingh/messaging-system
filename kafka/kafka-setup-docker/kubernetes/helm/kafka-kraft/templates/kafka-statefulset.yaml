@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "kafka-kraft.fullname" . }}
+
+spec:
+  serviceName: {{ include "kafka-kraft.kafkaService" . }}
+
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: {{ include "kafka-kraft.fullname" . }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ include "kafka-kraft.fullname" . }}
+
+    spec:
+      containers:
+        - name: kafka
+
+          image: "{{ .Values.kafka.image.repository }}:{{ .Values.kafka.image.tag }}"
+
+          imagePullPolicy: {{ .Values.kafka.image.pullPolicy }}
+
+          ports:
+            - name: kafka
+              containerPort: 9092
+
+            - name: controller
+              containerPort: 9093
+
+          env:
+            - name: KAFKA_CLUSTER_ID
+              value: {{ .Values.kafka.clusterId | quote }}
+
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -f /var/lib/kafka/data/meta.properties ]; then
+                /opt/kafka/bin/kafka-storage.sh format \
+                  --ignore-formatted \
+                  --cluster-id "$KAFKA_CLUSTER_ID" \
+                  --config /opt/kafka/config/server.properties
+              fi
+
+              exec /opt/kafka/bin/kafka-server-start.sh \
+                /opt/kafka/config/server.properties
+
+          volumeMounts:
+
+            - name: kafka-config
+              mountPath: /opt/kafka/config/server.properties
+              subPath: server.properties
+
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+
+      volumes:
+        - name: kafka-config
+          configMap:
+            name: {{ include "kafka-kraft.fullname" . }}-config
+
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        {{- if .Values.kafka.persistence.storageClass }}
+        storageClassName: {{ .Values.kafka.persistence.storageClass }}
+        {{- end }}
+
+        resources:
+          requests:
+            storage: {{ .Values.kafka.persistence.size }}

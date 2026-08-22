@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kafka-kraft
+description: Apache Kafka KRaft with Kafka UI
+type: application
+version: 0.1.0
+appVersion: "4.3.1"

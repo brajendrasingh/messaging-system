@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kafka-kraft.kafkaUi" . }}
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: {{ include "kafka-kraft.kafkaUi" . }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ include "kafka-kraft.kafkaUi" . }}
+
+    spec:
+      containers:
+        - name: kafka-ui
+
+          image: "{{ .Values.kafkaUi.image.repository }}:{{ .Values.kafkaUi.image.tag }}"
+
+          imagePullPolicy: {{ .Values.kafkaUi.image.pullPolicy }}
+
+          ports:
+            - name: http
+              containerPort: 8080
+
+          env:
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: "local"
+
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: "{{ include "kafka-kraft.fullname" . }}-0.{{ include "kafka-kraft.kafkaService" . }}:9092"

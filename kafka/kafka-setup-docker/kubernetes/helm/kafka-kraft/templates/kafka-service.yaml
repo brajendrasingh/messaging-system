@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kafka-kraft.kafkaService" . }}
+
+spec:
+  clusterIP: None
+
+  selector:
+    app: {{ include "kafka-kraft.fullname" . }}
+
+  ports:
+    - name: kafka
+      port: 9092
+      targetPort: kafka
+
+    - name: controller
+      port: 9093
+      targetPort: controller

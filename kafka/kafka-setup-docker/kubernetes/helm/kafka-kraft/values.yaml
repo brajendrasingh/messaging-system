@@ -1,0 +1,22 @@
+kafka:
+  image:
+    repository: apache/kafka
+    tag: "4.3.1"
+    pullPolicy: IfNotPresent
+
+  clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
+
+  persistence:
+    storageClass: ""
+    size: 10Gi
+
+kafkaUi:
+  image:
+    repository: provectuslabs/kafka-ui
+    tag: "v0.7.2"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30080
